@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Browser</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        #main-frame {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        .folder-frame {
+            border: 2px solid black;
+            width: 23%;
+            margin: 10px;
+            position: relative;
+        }
+        .folder-frame.selected {
+            border-color: blue;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        .bottom-frame {
+            display: flex;
+            justify-content: space-between;
+            background: #f0f0f0;
+            padding: 5px;
+        }
+        .close-btn {
+            cursor: pointer;
+        }
+        #add-folder-btn {
+            margin: 10px;
+            padding: 5px 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="main-frame"></div>
+    <input type="file" id="file-input" webkitdirectory multiple style="display:none;">
+    <button id="add-folder-btn">Add Folder</button>
+
+    <script>
+        class PhotoBrowser {
+            constructor() {
+                this.folderFrames = [];
+                this.allImages = [];
+                this.selectedFolder = null;
+                this.singleMode = true; // Default to single folder mode
+                this.currentImageIndex = 0;
+
+                this.mainFrame = document.getElementById('main-frame');
+                this.fileInput = document.getElementById('file-input');
+
+                // Bind events
+                document.getElementById('add-folder-btn').addEventListener('click', () => this.addFolder());
+                window.addEventListener('keydown', (e) => this.handleKeydown(e));
+            }
+
+            addFolder() {
+                if (this.folderFrames.length >= 16) {
+                    alert("Cannot add more than 16 folders.");
+                    return;
+                }
+
+                this.fileInput.onchange = (event) => {
+                    const files = Array.from(event.target.files);
+                    const folderImages = files.filter(file => file.type.match('image.*'));
+
+                    if (folderImages.length > 0) {
+                        const folderName = folderImages[0].webkitRelativePath.split('/')[0];
+                        this.displayFolder(folderName, folderImages);
+                    }
+                };
+
+                // Trigger the hidden file input
+                this.fileInput.click();
+            }
+
+            displayFolder(folderName, images) {
+                const frame = document.createElement('div');
+                frame.classList.add('folder-frame');
+                this.mainFrame.appendChild(frame);
+
+                // Canvas for image display
+                const canvas = document.createElement('canvas');
+                frame.appendChild(canvas);
+                const ctx = canvas.getContext('2d');
+
+                // Bottom frame for filename and close button
+                const bottomFrame = document.createElement('div');
+                bottomFrame.classList.add('bottom-frame');
+                frame.appendChild(bottomFrame);
+
+                const filenameLabel = document.createElement('span');
+                filenameLabel.textContent = `${folderName}/${images[0].name}`;
+                bottomFrame.appendChild(filenameLabel);
+
+                const closeButton = document.createElement('span');
+                closeButton.textContent = "X";
+                closeButton.classList.add('close-btn');
+                closeButton.addEventListener('click', () => this.removeFolder(frame));
+                bottomFrame.appendChild(closeButton);
+
+                // Select folder on click
+                frame.addEventListener('click', () => this.selectFolder(frame, images, canvas, ctx, filenameLabel));
+
+                this.folderFrames.push({ frame, images, canvas, ctx, currentIndex: 0, filenameLabel });
+
+                // Automatically select the first image of the new folder
+                if (this.folderFrames.length === 1) {
+                    this.selectFolder(frame, images, canvas, ctx, filenameLabel);
+                }
+            }
+
+            selectFolder(frame, images, canvas, ctx, filenameLabel) {
+                if (this.selectedFolder) {
+                    this.selectedFolder.frame.classList.remove('selected');
+                }
+
+                this.selectedFolder = { frame, images, canvas, ctx, currentIndex: 0, filenameLabel };
+                frame.classList.add('selected');
+                this.displayImage();
+            }
+
+            displayImage() {
+                const { images, canvas, ctx, currentIndex, filenameLabel } = this.selectedFolder;
+                const imageFile = images[currentIndex];
+
+                const img = new Image();
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                };
+                img.src = URL.createObjectURL(imageFile);
+
+                filenameLabel.textContent = imageFile.webkitRelativePath;
+            }
+
+            removeFolder(frame) {
+                this.mainFrame.removeChild(frame);
+                this.folderFrames = this.folderFrames.filter(f => f.frame !== frame);
+                if (this.selectedFolder && this.selectedFolder.frame === frame) {
+                    this.selectedFolder = null;
+                }
+            }
+
+            handleKeydown(event) {
+                if (this.selectedFolder) {
+                    if (event.key === 'ArrowRight') {
+                        this.nextImage();
+                    } else if (event.key === 'ArrowLeft') {
+                        this.prevImage();
+                    } else if (event.key === 'Tab') {
+                        this.toggleMode();
+                    }
+                }
+            }
+
+            nextImage() {
+                const folder = this.selectedFolder;
+                folder.currentIndex = (folder.currentIndex + 1) % folder.images.length;
+                this.displayImage();
+            }
+
+            prevImage() {
+                const folder = this.selectedFolder;
+                folder.currentIndex = (folder.currentIndex - 1 + folder.images.length) % folder.images.length;
+                this.displayImage();
+            }
+
+            toggleMode() {
+                this.singleMode = !this.singleMode;
+                console.log(`Switched to ${this.singleMode ? 'Single Folder' : 'Global'} Mode`);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new PhotoBrowser();
+        });
+    </script>
+</body>
+</html>
