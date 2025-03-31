@@ -1,0 +1,6 @@
+2025-03-31 12:07:11 - Application started
+2025-03-31 12:07:28 - Switched to Global Mode
+2025-03-31 12:07:29 - Switched to Single Folder Mode
+2025-03-31 12:07:49 - Removed folder: /Users/user/Desktop/MyCode
+2025-03-31 12:10:01 - Failed to load application data: bad menu entry index "-label"
+2025-03-31 12:10:01 - Application started
