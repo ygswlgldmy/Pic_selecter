@@ -28,6 +28,18 @@ class PhotoBrowser:
         self.main_frame = Frame(self.root)
         self.main_frame.pack(fill=BOTH, expand=True)
 
+        # Add top control panel
+        self.control_panel = Frame(self.root)
+        self.control_panel.pack(fill=X, side=TOP)
+        
+        # Add folder button in the top control panel
+        self.add_folder_button = Button(self.control_panel, text="Add Folder", command=self.add_folder)
+        self.add_folder_button.pack(side=LEFT, padx=5, pady=5)
+        
+        # Toggle mode button in the top control panel
+        self.toggle_mode_button = Button(self.control_panel, text="Toggle Mode", command=self.toggle_mode)
+        self.toggle_mode_button.pack(side=LEFT, padx=5, pady=5)
+
         # Bind events
         self.root.bind("<Left>", self.prev_image)
         self.root.bind("<Right>", self.next_image)
@@ -36,6 +48,9 @@ class PhotoBrowser:
         self.root.bind("<Delete>", self.delete_selected_folder)
         self.root.bind("<Control-s>", self.save_image)  # Bind Ctrl+S to save image
         self.root.bind("<Button-3>", self.show_context_menu)  # Bind right-click to show context menu
+        
+        # Bind window resize event to update image sizing
+        self.root.bind("<Configure>", self.on_window_resize)
 
         # Initialize context menu
         self.context_menu = Menu(self.root, tearoff=0)
@@ -46,6 +61,28 @@ class PhotoBrowser:
             label="Switch to Global Mode",
             command=self.toggle_mode_from_context_menu
         )
+
+    def on_window_resize(self, event=None):
+        """Update folder dimensions and resize images when window is resized"""
+        # Only respond to actual window resize events, not other configure events
+        if event and event.widget == self.root:
+            # Update folder dimensions based on new window size
+            new_width = self.root.winfo_width()
+            new_height = self.root.winfo_height()
+            
+            # Only proceed if dimensions are valid (not during initial setup)
+            if new_width > 100 and new_height > 100:
+                # Calculate new folder dimensions
+                self.folder_width = (new_width // 4) - 10
+                self.folder_height = (new_height // 4) - 10
+                
+                # Resize all displayed images
+                for frame, folder, images, canvas, current_index, filename_label in self.folder_frames:
+                    if images and current_index < len(images):
+                        # Resize the frame
+                        canvas.config(width=self.folder_width, height=self.folder_height)
+                        # Redisplay the current image at the new size
+                        self.display_image(canvas, images[current_index], filename_label)
 
     def add_folder(self, event=None):
         if len(self.folder_frames) >= 16:
@@ -59,14 +96,10 @@ class PhotoBrowser:
             col = len(self.folder_frames) % 4
             frame.grid(row=row, column=col, padx=5, pady=5)
 
-            # Canvas for image display
-            canvas = Canvas(frame, width=self.folder_width, height=self.folder_height)
-            canvas.pack(fill=BOTH, expand=True)
-
-            # Filename and close button frame
-            bottom_frame = Frame(frame)
-            bottom_frame.pack(fill=X, side=BOTTOM)
-
+            # Top control frame for filename and buttons
+            top_frame = Frame(frame)
+            top_frame.pack(fill=X, side=TOP)
+            
             # Display folder and image name
             image_paths = sorted(self.get_image_paths(folder))
             if image_paths:
@@ -77,12 +110,20 @@ class PhotoBrowser:
                 display_text = "No Images"
 
             # Show filename
-            filename_label = Label(bottom_frame, text=display_text)
+            filename_label = Label(top_frame, text=display_text)
             filename_label.pack(side=LEFT, padx=5)
 
+            # Download button
+            download_button = Button(top_frame, text="↓", command=lambda f=folder: self.save_specific_image(f))
+            download_button.pack(side=RIGHT, padx=2)
+            
             # Close button
-            close_button = Button(bottom_frame, text="X", command=lambda f=frame: self.remove_folder(f, folder))
-            close_button.pack(side=RIGHT, padx=5)
+            close_button = Button(top_frame, text="X", command=lambda f=frame: self.remove_folder(f, folder))
+            close_button.pack(side=RIGHT, padx=2)
+
+            # Canvas for image display
+            canvas = Canvas(frame, width=self.folder_width, height=self.folder_height)
+            canvas.pack(fill=BOTH, expand=True)
 
             # Bind image click event
             canvas.bind("<Button-1>", lambda e, f=folder, fr=frame: self.select_folder(f, fr))
@@ -107,10 +148,41 @@ class PhotoBrowser:
         try:
             # Try to open the image
             img = Image.open(image_path)
-            img.thumbnail((self.folder_width, self.folder_height))  # Ensure dimensions are defined
+            
+            # Calculate the aspect ratio to maintain proportions
+            img_width, img_height = img.size
+            aspect_ratio = img_width / img_height
+            
+            # Determine target dimensions to fit the canvas while maintaining aspect ratio
+            target_width = self.folder_width
+            target_height = self.folder_height
+            
+            # Adjust dimensions to maintain aspect ratio
+            if img_width / target_width > img_height / target_height:
+                # Width is the limiting factor
+                new_width = target_width
+                new_height = int(new_width / aspect_ratio)
+            else:
+                # Height is the limiting factor
+                new_height = target_height
+                new_width = int(new_height * aspect_ratio)
+            
+            # Resize image to fit canvas while maintaining aspect ratio
+            img = img.resize((new_width, new_height), Image.LANCZOS)
+            
             img_tk = ImageTk.PhotoImage(img)
-            canvas.create_image(0, 0, anchor=NW, image=img_tk)
+            
+            # Clear the canvas
+            canvas.delete("all")
+            
+            # Calculate position to center the image on the canvas
+            x_position = (target_width - new_width) // 2
+            y_position = (target_height - new_height) // 2
+            
+            # Create the image centered on the canvas
+            canvas.create_image(x_position, y_position, anchor=NW, image=img_tk)
             canvas.image = img_tk
+            
         except UnidentifiedImageError:
             # If the image cannot be opened, display a placeholder or clear the canvas
             canvas.delete("all")  # Clear the canvas
@@ -240,6 +312,27 @@ class PhotoBrowser:
 
     def show_context_menu(self, event):
         self.context_menu.post(event.x_root, event.y_root)
+
+    def save_specific_image(self, folder):
+        """Save the current image from the specified folder"""
+        for _, fld, images, _, current_index, _ in self.folder_frames:
+            if fld == folder and images and current_index < len(images):
+                current_image_path = images[current_index]
+                # Extract the current image's filename
+                default_filename = os.path.basename(current_image_path)
+                
+                # Ask user for the file path and name to save the image, pre-fill the filename
+                save_path = filedialog.asksaveasfilename(defaultextension=".jpg", 
+                                                        initialfile=default_filename,  # Pre-fill with current filename
+                                                        filetypes=[("JPEG files", "*.jpg"), ("PNG files", "*.png")])
+                if save_path:
+                    try:
+                        img = Image.open(current_image_path)
+                        img.save(save_path)  # Save the image
+                        print(f"Image saved to {save_path}")
+                    except Exception as e:
+                        print(f"Failed to save the image: {e}")
+                break
 
 
 if __name__ == "__main__":

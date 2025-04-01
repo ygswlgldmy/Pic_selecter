@@ -4,3 +4,7 @@
 2025-03-31 12:07:49 - Removed folder: /Users/user/Desktop/MyCode
 2025-03-31 12:10:01 - Failed to load application data: bad menu entry index "-label"
 2025-03-31 12:10:01 - Application started
+2025-04-01 15:48:19 - Failed to load application data: bad menu entry index "-label"
+2025-04-01 15:48:19 - Application started
+2025-04-01 15:48:59 - Slow image load: /Volumes/P106/DefectDetection/对比/val/Fiest_batch_crack_100.png took 0.64s
+2025-04-01 15:48:59 - Added folder: /Volumes/P106/DefectDetection/对比/val

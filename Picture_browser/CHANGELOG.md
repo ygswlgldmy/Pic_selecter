@@ -35,3 +35,5 @@ All notable changes to the Picture Browser application will be documented in thi
 - Improved error handling for invalid or corrupted images
 - Fixed layout issues when resizing the application window
 - Addressed potential file path issues across different operating systems 
+
+请将文件夹内部结构中的底部栏置于顶部，并修复终端出现的异常，输出产品原型图到单独日志中并且在原来的更新日志中更新新版本的日志，目前版本放缩功能存在异常
