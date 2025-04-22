@@ -1,10 +1,9 @@
 import os
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk, ImageFile, UnidentifiedImageError
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 from screeninfo import get_monitors
-import platform
 import json
 import time
 from style import AppStyle
@@ -101,41 +100,22 @@ class PhotoBrowser:
         self.file_menu.add_command(label="添加文件夹", command=self.add_folder, accelerator="Ctrl+A")
         self.file_menu.add_command(label="保存当前图片", command=self.save_image, accelerator="Ctrl+S")
         self.file_menu.add_separator()
+        self.file_menu.add_command(label="设置目标文件夹", command=self.set_target_folder)
         self.file_menu.add_command(label="移除选中文件夹", command=self.delete_selected_folder, accelerator="Delete")
         self.file_menu.add_separator()
         self.file_menu.add_command(label="退出", command=self.root.quit)
-        
-        # 查看菜单
-        self.view_menu = tk.Menu(self.menu_bar, tearoff=0)
-        self.menu_bar.add_cascade(label="查看", menu=self.view_menu)
-        self.view_menu.add_command(label="切换单文件夹/全局模式", command=self.toggle_mode, accelerator="Tab")
-        
-        # 导航子菜单
-        self.nav_submenu = tk.Menu(self.view_menu, tearoff=0)
-        self.view_menu.add_cascade(label="导航", menu=self.nav_submenu)
-        self.nav_submenu.add_command(label="上一张图片", command=self.prev_image, accelerator="←")
-        self.nav_submenu.add_command(label="下一张图片", command=self.next_image, accelerator="→")
-        self.nav_submenu.add_command(label="上一页", command=self.prev_page)
-        self.nav_submenu.add_command(label="下一页", command=self.next_page)
-        
-        # 缩放子菜单
-        self.zoom_submenu = tk.Menu(self.view_menu, tearoff=0)
-        self.view_menu.add_cascade(label="缩放", menu=self.zoom_submenu)
-        self.zoom_submenu.add_command(label="放大", command=self.zoom_in, accelerator="Ctrl++")
-        self.zoom_submenu.add_command(label="缩小", command=self.zoom_out, accelerator="Ctrl+-")
-        self.zoom_submenu.add_command(label="重置缩放", command=self.reset_zoom, accelerator="Ctrl+0")
-        
-        # 工具菜单
-        self.tools_menu = tk.Menu(self.menu_bar, tearoff=0)
-        self.menu_bar.add_cascade(label="工具", menu=self.tools_menu)
-        self.tools_menu.add_command(label="刷新文件夹", command=self.refresh_folders)
-        self.tools_menu.add_command(label="清除失效路径", command=self.clean_invalid_paths)
-        
-        # 帮助菜单
-        self.help_menu = tk.Menu(self.menu_bar, tearoff=0)
-        self.menu_bar.add_cascade(label="帮助", menu=self.help_menu)
-        self.help_menu.add_command(label="快捷键", command=self.show_shortcuts)
-        self.help_menu.add_command(label="关于", command=self.show_about)
+
+    def set_target_folder(self):
+        """Set the target folder for moving images"""
+        folder = filedialog.askdirectory()
+        if folder:
+            self.target_folder = folder
+            self.status_bar.config(text=f"目标文件夹已设置为: {folder}")
+            # Log the action
+            self.log_update(f"Target folder set: {folder}")
+            
+            # Save application data
+            self.save_app_data()
 
     def show_shortcuts(self):
         """Display keyboard shortcuts help dialog"""
@@ -355,6 +335,11 @@ class PhotoBrowser:
             button_frame = tk.Frame(bottom_frame)
             button_frame.pack(side=tk.RIGHT)
             
+            # Remove button
+            remove_button = tk.Button(button_frame, text="Move", command=lambda f=folder: self.remove_images(f))
+            remove_button.pack(side=tk.LEFT, padx=2)
+            self.style.style_button(remove_button)
+            
             # Download button with arrow symbol
             download_button = tk.Button(button_frame, text="↓", command=lambda img_path=image_paths[0] if image_paths else None: 
                                         self.save_specific_image(img_path))
@@ -397,6 +382,79 @@ class PhotoBrowser:
             # Update status
             self.status_bar.config(text=f"Added folder: {folder}")
 
+    def remove_images(self, folder):
+        """Move the currently displayed image from the specified folder to the target directory"""
+        if not hasattr(self, 'target_folder') or not self.target_folder:
+            messagebox.showwarning("Warning", "请先设置目标文件夹路径")
+            return
+
+        # Find the folder in folder_frames
+        for i, (frame, fld, images, canvas, current_index, filename_label, download_button) in enumerate(self.folder_frames):
+            if fld == folder:
+                # Check if there are any images in the folder
+                if not images:
+                    messagebox.showwarning("Warning", "文件夹中没有图片")
+                    return
+                
+                # Get the currently displayed image
+                current_image_path = images[current_index]
+                
+                try:
+                    # Move only the current image
+                    new_path = os.path.join(self.target_folder, os.path.basename(current_image_path))
+                    os.rename(current_image_path, new_path)
+                    
+                    # Remove the moved image from the images list
+                    del images[current_index]
+                    
+                    # Update the display to show the next image (or previous if at end)
+                    if current_index >= len(images):
+                        current_index = max(0, len(images) - 1)
+                    
+                    # Update the display
+                    if images:
+                        self.display_image(canvas, images[current_index], filename_label)
+                        # Update stored index
+                        self.folder_frames[i] = (frame, fld, images, canvas, current_index, filename_label, download_button)
+                    else:
+                        # If no images left, remove the folder
+                        self.remove_folder(frame, folder)
+                    
+                except Exception as e:
+                    messagebox.showerror("Error", f"移动文件失败: {str(e)}")
+                return
+        
+        messagebox.showwarning("Warning", "未找到指定的文件夹")
+
+    def create_top_menu_bar(self):
+        """创建包含所有功能的菜单栏"""
+        # 创建主菜单栏
+        self.menu_bar = tk.Menu(self.root)
+        self.root.config(menu=self.menu_bar)
+        
+        # 文件菜单
+        self.file_menu = tk.Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_cascade(label="文件", menu=self.file_menu)
+        self.file_menu.add_command(label="添加文件夹", command=self.add_folder, accelerator="Ctrl+A")
+        self.file_menu.add_command(label="保存当前图片", command=self.save_image, accelerator="Ctrl+S")
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="设置目标文件夹", command=self.set_target_folder)
+        self.file_menu.add_command(label="移除选中文件夹", command=self.delete_selected_folder, accelerator="Delete")
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="退出", command=self.root.quit)
+
+    def set_target_folder(self):
+        """Set the target folder for moving images"""
+        folder = filedialog.askdirectory()
+        if folder:
+            self.target_folder = folder
+            self.status_bar.config(text=f"目标文件夹已设置为: {folder}")
+            # Log the action
+            self.log_update(f"Target folder set: {folder}")
+            
+            # Save application data
+            self.save_app_data()
+
     def truncate_label(self, label, max_width):
         """Truncate label text if it's too long for available width"""
         text = label.cget("text")
@@ -434,7 +492,7 @@ class PhotoBrowser:
             
             # Configure frame size
             frame.config(width=self.folder_width, height=self.folder_height)
-            canvas.config(width=self.folder_width, height=self.folder_height)
+            canvas.config(width=self.folder_width, height=self.folder_height-25)
             
             # Position the frame in the grid
             frame.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
