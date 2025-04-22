@@ -8,3 +8,74 @@
 2025-04-01 15:48:19 - Application started
 2025-04-01 15:48:59 - Slow image load: /Volumes/P106/DefectDetection/瀵规瘮/val/Fiest_batch_crack_100.png took 0.64s
 2025-04-01 15:48:59 - Added folder: /Volumes/P106/DefectDetection/瀵规瘮/val
+2025-04-10 13:58:26 - Application started
+2025-04-10 13:58:47 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 13:58:47 - Added folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 13:58:47 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 13:58:52 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:00:54 - Failed to load application data: list index out of range
+2025-04-10 14:00:54 - Application started
+2025-04-10 14:00:58 - Removed folder: C:/Users/xiong/Pictures/Saved Pictures
+2025-04-10 14:01:03 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:01:03 - Added folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:01:03 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:01:20 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:01:21 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:01:25 - 刷新文件夹: 0个文件夹内容已更新
+2025-04-10 14:01:27 - 清理无效路径: 已移除0个无效文件夹
+2025-04-10 14:06:58 - Attempted to restore folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:06:58 - Application started
+2025-04-10 14:07:04 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:07:04 - Added folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:07:04 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:07:48 - Added folder: C:/Users/xiong/Desktop/Crack/temp
+2025-04-10 14:07:57 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:07:58 - Removed folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:08:01 - Removed folder: C:/Users/xiong/Desktop/Crack/temp
+2025-04-10 14:22:02 - Application started
+2025-04-10 14:22:08 - Target folder set: C:/Users/xiong/Desktop/Crack/temp
+2025-04-10 14:22:14 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:22:14 - Added folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:22:14 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:22:17 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:22:18 - Removed folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:26:00 - Application started
+2025-04-10 14:26:11 - Target folder set: C:/Users/xiong/Desktop/Crack/temp
+2025-04-10 14:26:17 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:26:17 - Added folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:26:17 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:31:41 - Attempted to restore folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:31:41 - Application started
+2025-04-10 14:31:50 - Target folder set: C:/Users/xiong/Desktop/Crack/temp
+2025-04-10 14:31:55 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:31:55 - Added folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:31:55 - Selected folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:32:23 - Removed folder: C:/Users/xiong/Pictures/Screenshots
+2025-04-10 14:32:37 - Application started
+2025-04-10 14:32:45 - Target folder set: C:/Users/xiong/Desktop/Crack/temp
+2025-04-10 14:32:54 - Selected folder: C:/Users/xiong/Desktop/Crack/images
+2025-04-10 14:32:54 - Added folder: C:/Users/xiong/Desktop/Crack/images
+2025-04-10 14:32:54 - Selected folder: C:/Users/xiong/Desktop/Crack/images
+2025-04-10 14:32:56 - Selected folder: C:/Users/xiong/Desktop/Crack/images
+2025-04-10 14:33:01 - Added folder: C:/Users/xiong/Desktop/Crack/masks
+2025-04-10 14:33:01 - Selected folder: C:/Users/xiong/Desktop/Crack/masks
+2025-04-10 14:33:02 - Selected folder: C:/Users/xiong/Desktop/Crack/images
+2025-04-10 14:33:02 - Selected folder: C:/Users/xiong/Desktop/Crack/images
+2025-04-10 14:33:03 - Selected folder: C:/Users/xiong/Desktop/Crack/masks
+2025-04-10 14:33:07 - Switched to Global Mode
+2025-04-10 14:33:11 - Selected folder: C:/Users/xiong/Desktop/Crack/images
+2025-04-10 14:33:15 - Selected folder: C:/Users/xiong/Desktop/Crack/masks
+2025-04-10 14:33:21 - Switched to Single Folder Mode
+2025-04-10 14:33:22 - Selected folder: C:/Users/xiong/Desktop/Crack/masks
+2025-04-10 14:33:26 - Switched to Global Mode
+2025-04-10 14:33:28 - Selected folder: C:/Users/xiong/Desktop/Crack/images
+2025-04-10 14:33:29 - Selected folder: C:/Users/xiong/Desktop/Crack/masks
+2025-04-10 14:33:30 - Selected folder: C:/Users/xiong/Desktop/Crack/images
+2025-04-10 14:33:34 - Selected folder: C:/Users/xiong/Desktop/Crack/masks
+2025-04-10 14:34:41 - Selected folder: C:/Users/xiong/Desktop/Crack/images
+2025-04-10 14:34:43 - 放大图片: 1.20x
+2025-04-10 14:34:47 - Selected folder: C:/Users/xiong/Desktop/Crack/masks
+2025-04-10 14:34:48 - Selected folder: C:/Users/xiong/Desktop/Crack/images
+2025-04-10 14:34:50 - Selected folder: C:/Users/xiong/Desktop/Crack/masks
+2025-04-10 14:34:51 - Selected folder: C:/Users/xiong/Desktop/Crack/masks
+2025-04-10 14:34:51 - Selected folder: C:/Users/xiong/Desktop/Crack/images
